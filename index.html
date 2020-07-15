@@ -4,26 +4,23 @@
 <svg width=150 height=300>
 </svg>
 <script>
-xdomain = [0,1];
-xdomain = [0,42];
-xrange = [0,100];
-ydomain = [0,5];
-yrange = [100, 250];
-cdomain = [0,42];
-crange = ["blue","orange"];
-  xs = d3.scaleLinear().domain(xdomain).range(xrange);
-ys = d3.scaleLinear().domain(ydomain).range(yrange);
-cs = d3.scaleLinear().domain(cdomain).range(crange);
-d3.select('svg')
-  .selectAll('rect')
-  .data([4,8,15,16,23,42])
-  .enter()
-  .append('rect')
-    .attr('x',20)
-    .attr('y',function(d,i) {return ys(i);})
-    .attr('width',function(d,i) {return xs(d);})
-    .attr('height',10)
-    .style('fill',function(d,i) {return cs(d);});
+var ys = d3.scaleLog().domain([10,150]).range([200,0]);
+var xs = d3.scaleLog().domain([10,150]).range([0,200]);
+
+data = await d3.csv("https://flunky.github.io/cars2017.csv");
+
+d3.select("svg").append("g").attr("transform", "translate(50,50)")
+.selectAll("circle").data(data).enter().append("circle")
+.attr("cx", function(d){return xs(d.AverageCityMPG);})
+.attr("cy", function(d){return ys(d.AverageHighwayMPG);})
+.attr("r", function(d){return 2 + Number(d.EngineCylinders);})
+
+d3.select("svg").append("g").attr("transform", "translate(50,50)")
+.call(d3.axisLeft(ys).tickValues([10,20,50,100]).tickFormat(d3.format("~s")))
+
+d3.select("svg").append("g").attr("transform", "translate(50,250)")
+.call(d3.axisBottom(xs).tickValues([10,20,50,100]).tickFormat(d3.format("~s")))
+
 </script>
 </body>
 </html>
