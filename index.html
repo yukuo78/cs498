@@ -1,9 +1,10 @@
 <html>
 <script src='https://d3js.org/d3.v5.min.js'></script>
-<body>
+<body onload='init()'>
 <svg width=150 height=300>
 </svg>
 <script>
+async function init() {
 var ys = d3.scaleLog().domain([10,150]).range([200,0]);
 var xs = d3.scaleLog().domain([10,150]).range([0,200]);
 
@@ -20,7 +21,7 @@ d3.select("svg").append("g").attr("transform", "translate(50,50)")
 
 d3.select("svg").append("g").attr("transform", "translate(50,250)")
 .call(d3.axisBottom(xs).tickValues([10,20,50,100]).tickFormat(d3.format("~s")))
-
+}
 </script>
 </body>
 </html>
