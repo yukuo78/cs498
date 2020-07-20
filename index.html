@@ -31,9 +31,7 @@
         </svg>
     </div>
 </div>
-<!-- jQuery (Bootstrap 的所有 JavaScript 插件都依赖 jQuery，所以必须放在前边) -->
 <script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
-<!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
 
 <script>
@@ -41,7 +39,7 @@
         // create a tooltip
         var Tooltip = d3.select("#div_template")
             .append("div")
-            .style("opacity", 1)
+            .style("opacity", 0)
             .attr("class", "tooltip")
             .style("width", "90px")
             .style("height", "60px")
@@ -60,7 +58,7 @@
         };
         var mousemove = function (d) {
             Tooltip
-                .html("The exact value of<br>this cell is: " + d.EngineCylinders)
+                .html("The population of" + d.Country + "<br/> is: " + d.Population)
                 .style("left", (d3.event.pageX) + "px")
                 .style("top", (d3.event.pageY-100) + "px")
         };
@@ -71,21 +69,26 @@
                 .style("stroke", "black")
                 .style("opacity", 0.8)
         };
-        var ys = d3.scaleLog().domain([10, 150]).range([400, 0]);
-        var xs = d3.scaleLog().domain([10, 150]).range([0, 400]);
+        var ys = d3.scaleLinear().domain([0, 0.008]).range([400, 0]);
+        var xs = d3.scaleLog().domain([10, 10000]).range([0, 400]);
+        var rs = d3.scaleLog().domain([10000, 1600000000]).range([1, 10]);
 
-        data = await d3.csv("https://flunky.github.io/cars2017.csv");
+        data = await d3.csv("https://yukuo78.github.io/cs498/gdp_birth_pop.csv");
+        // data = await d3.csv("file:///Users/yukuo/Documents/homework/cs498/cs498/gdp_birth_pop.csv");
 
         d3.select("svg").append("g").attr("transform", "translate(50,50)")
             .selectAll("circle").data(data).enter().append("circle")
             .attr("cx", function (d) {
-                return xs(d.AverageCityMPG);
+                // return xs(d.Income);
+                return 100;
             })
             .attr("cy", function (d) {
-                return ys(d.AverageHighwayMPG);
+                return ys(d.BirthRate);
+                // return 10;
             })
             .attr("r", function (d) {
-                return 2 + Number(d.EngineCylinders);
+                // return rs(Number(d.Population));
+                return 5;
             })
             .on("mouseover", mouseover)
             .on("mousemove", mousemove)
@@ -93,10 +96,10 @@
 
 
         d3.select("svg").append("g").attr("transform", "translate(50,50)")
-            .call(d3.axisLeft(ys).tickValues([10, 20, 50, 100]).tickFormat(d3.format("~s")))
+            .call(d3.axisLeft(ys).tickValues([0.01, 0.02, 0.05, 0.08]).tickFormat(d3.format("~s")))
 
         d3.select("svg").append("g").attr("transform", "translate(50,450)")
-            .call(d3.axisBottom(xs).tickValues([10, 20, 50, 100]).tickFormat(d3.format("~s")))
+            .call(d3.axisBottom(xs).tickValues([10, 100, 1000, 10000]).tickFormat(d3.format("~s")))
 
     }
 </script>
