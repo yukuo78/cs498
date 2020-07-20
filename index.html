@@ -69,26 +69,26 @@
                 .style("stroke", "black")
                 .style("opacity", 0.8)
         };
-        var ys = d3.scaleLinear().domain([0, 0.008]).range([400, 0]);
+        var ys = d3.scaleLinear().domain([0, 0.08]).range([400, 0]);
         var xs = d3.scaleLog().domain([10, 10000]).range([0, 400]);
         var rs = d3.scaleLog().domain([10000, 1600000000]).range([1, 10]);
 
-        data = await d3.csv("https://yukuo78.github.io/cs498/gdp_birth_pop.csv");
+        data = await d3.csv("https://yukuo78.github.io/cs498/gdp_birth_pop_2012.csv");
         // data = await d3.csv("file:///Users/yukuo/Documents/homework/cs498/cs498/gdp_birth_pop.csv");
 
         d3.select("svg").append("g").attr("transform", "translate(50,50)")
             .selectAll("circle").data(data).enter().append("circle")
             .attr("cx", function (d) {
-                // return xs(d.Income);
-                return 100;
+                return xs(d.Income);
+                // return 100;
             })
             .attr("cy", function (d) {
                 return ys(d.BirthRate);
                 // return 10;
             })
             .attr("r", function (d) {
-                // return rs(Number(d.Population));
-                return 5;
+                return rs(Number(d.Population));
+                // return 5;
             })
             .on("mouseover", mouseover)
             .on("mousemove", mousemove)
