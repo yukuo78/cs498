@@ -41,8 +41,8 @@
             .append("div")
             .style("opacity", 0)
             .attr("class", "tooltip")
-            .style("width", "90px")
-            .style("height", "60px")
+            .style("width", "120px")
+            .style("height", "80px")
             .style("background-color", "white")
             .style("border", "solid")
             .style("border-width", "2px")
@@ -70,8 +70,8 @@
                 .style("opacity", 0.8)
         };
         var ys = d3.scaleLinear().domain([0, 0.08]).range([400, 0]);
-        var xs = d3.scaleLog().domain([10, 10000]).range([0, 400]);
-        var rs = d3.scaleLog().domain([10000, 1600000000]).range([1, 10]);
+        var xs = d3.scaleLog().domain([10, 100000]).range([0, 400]);
+        var rs = d3.scaleLog().domain([30000, 1600000000]).range([1, 50]);
 
         data = await d3.csv("https://yukuo78.github.io/cs498/gdp_birth_pop_2012.csv");
         // data = await d3.csv("file:///Users/yukuo/Documents/homework/cs498/cs498/gdp_birth_pop.csv");
@@ -99,7 +99,7 @@
             .call(d3.axisLeft(ys).tickValues([0.01, 0.02, 0.05, 0.08]).tickFormat(d3.format("~s")))
 
         d3.select("svg").append("g").attr("transform", "translate(50,450)")
-            .call(d3.axisBottom(xs).tickValues([10, 100, 1000, 10000]).tickFormat(d3.format("~s")))
+            .call(d3.axisBottom(xs).tickValues([10, 100, 1000, 10000, 100000]).tickFormat(d3.format("~s")))
 
     }
 </script>
