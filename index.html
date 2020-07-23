@@ -6,8 +6,9 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
 
 <style> circle {
-    fill: lightblue;
+    /*fill: lightblue;*/
     stroke: black;
+    opacity: 0.2
 } </style>
 <body onload='init()'>
 <div class="page-header">
@@ -15,34 +16,82 @@
 </div>
 
 <div class="row">
+    <div id="div_template" class="col-md-9">
+        <svg width=900 height=600>
+        </svg>
+    </div>
     <div class="col-sm-3">
         <div class="btn-toolbar" role="toolbar" aria-label="...">
             <div class="btn-group" role="group" aria-label="...">
                 <p>
-                <div class="btn btn-primary">1</div>
-                <div class="btn btn-default">2</div>
-                <div class="btn btn-default">3</div>
+                <div class="btn btn-default" onclick="changeScene(1)">Birth Rate vs Income in 2012</div>
+                <div class="btn btn-default" onclick="changeScene(2)">2</div>
+                <div class="btn btn-default" onclick="changeScene(3)">3</div>
                 </p>
             </div>
         </div>
-    </div>
-    <div id="div_template" class="col-md-6">
-        <svg width=600 height=600>
-        </svg>
+        <div id="scene-desc">
+
+        </div>
+        <h2>Year</h2>
+        <div class="row align-items-center">
+            <div class="col-sm-2"><p id="value-time"></p></div>
+            <div class="col-sm">
+                <div id="slider-time"></div>
+            </div>
+        </div>
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
 
 <script>
+    var width = 800;
+    var height = 600;
+
+    var golbalSceneNumber = 1;
+    var showToolTip = false;
+    var showAnnotation = false;
+    var showYearSelection = false;
+    var regionSelect = "";
+
+    function changeScene(sceneNumber) {
+        golbalSceneNumber = sceneNumber;
+        if (golbalSceneNumber === 1) {
+            showToolTip = false;
+            showAnnotation = false
+            showYearSelection = false;
+            d3.select("#scene-desc")
+                .html("We can see a relationship between birth rate and income")
+        }
+        if (golbalSceneNumber === 2) {
+            showToolTip = false;
+            showAnnotation = true;
+            showYearSelection = false;
+            regionSelect = "Europe"
+            d3.select("#scene-desc")
+                .html("But Europe is different")
+            d3.select("svg").html("")
+        }
+        if (golbalSceneNumber === 3) {
+            showToolTip = true;
+            showAnnotation = true;
+            showYearSelection = true;
+            d3.select("#scene-desc")
+                .html("Now feel free to explore!")
+        }
+    }
+
     async function init() {
         // create a tooltip
         var Tooltip = d3.select("#div_template")
             .append("div")
             .style("opacity", 0)
+            .style("position", "absolute")
             .attr("class", "tooltip")
             .style("width", "120px")
-            .style("height", "80px")
+            .style("height", "60px")
+            .style("text-align", "center")
             .style("background-color", "white")
             .style("border", "solid")
             .style("border-width", "2px")
@@ -50,28 +99,42 @@
             .style("padding", "5px");
 
         var mouseover = function (d) {
-            Tooltip
-                .style("opacity", 1)
+            if (showToolTip) {
+                Tooltip
+                    .style("opacity", 1)
+            }
             d3.select(this)
                 .style("stroke", "green")
                 .style("opacity", 1)
         };
         var mousemove = function (d) {
             Tooltip
-                .html("The population of" + d.Country + "<br/> is: " + d.Population)
+                .html("The population of <em>" + d.Country + "</em><br/> is: " + d.Population)
                 .style("left", (d3.event.pageX) + "px")
-                .style("top", (d3.event.pageY-100) + "px")
+                .style("top", (d3.event.pageY - 200) + "px")
         };
         var mouseleave = function (d) {
             Tooltip
                 .style("opacity", 0)
             d3.select(this)
                 .style("stroke", "black")
-                .style("opacity", 0.8)
+                .style("opacity", 0.2)
         };
-        var ys = d3.scaleLinear().domain([0, 0.08]).range([400, 0]);
-        var xs = d3.scaleLog().domain([10, 100000]).range([0, 400]);
-        var rs = d3.scaleLog().domain([30000, 1600000000]).range([1, 50]);
+
+        var highlight = function (d) {
+            if (d === regionSelect) {
+                return 1;
+            } else {
+                return 0.2;
+            }
+        }
+        var regions = ["Africa", "The Americas", "Asia", "Europe", "Middle East", "Oceania"];
+
+        var ys = d3.scaleLinear().domain([0, 0.06]).range([height - 50, 0]);
+        var xs = d3.scaleLog().domain([100, 100000]).range([0, width - 50]);
+        var rs = d3.scaleLog().domain([30000, 1600000000]).range([0, 25]);
+        var cs = d3.scaleOrdinal().domain(regions)
+            .range(["gold", "blue", "green", "red", "brown", "slateblue", "orange"])
 
         data = await d3.csv("https://yukuo78.github.io/cs498/gdp_birth_pop_2012.csv");
         // data = await d3.csv("file:///Users/yukuo/Documents/homework/cs498/cs498/gdp_birth_pop.csv");
@@ -80,15 +143,18 @@
             .selectAll("circle").data(data).enter().append("circle")
             .attr("cx", function (d) {
                 return xs(d.Income);
-                // return 100;
             })
             .attr("cy", function (d) {
                 return ys(d.BirthRate);
-                // return 10;
             })
             .attr("r", function (d) {
                 return rs(Number(d.Population));
-                // return 5;
+            })
+            .attr("fill", function (d) {
+                return cs(d.Region);
+            })
+            .style("opacity", function (d) {
+                return highlight(d.Region);
             })
             .on("mouseover", mouseover)
             .on("mousemove", mousemove)
@@ -98,8 +164,39 @@
         d3.select("svg").append("g").attr("transform", "translate(50,50)")
             .call(d3.axisLeft(ys).tickValues([0.01, 0.02, 0.05, 0.08]).tickFormat(d3.format("~s")))
 
-        d3.select("svg").append("g").attr("transform", "translate(50,450)")
+        d3.select("svg").append("g").attr("transform", "translate(50,550)")
             .call(d3.axisBottom(xs).tickValues([10, 100, 1000, 10000, 100000]).tickFormat(d3.format("~s")))
+
+
+        // add legend
+        var legend = d3.select("svg").append("g")
+            .attr("class", "legend")
+            .attr("x", width - 65)
+            .attr("y", 25)
+            .attr("height", 100)
+            .attr("width", 100);
+
+        legend.selectAll('g').data(regions)
+            .enter()
+            .append('g')
+            .each(function (d, i) {
+                var g = d3.select(this);
+                g.append("rect")
+                    .attr("x", width - 105)
+                    .attr("y", (i + 1) * 25)
+                    .attr("width", 10)
+                    .attr("height", 10)
+                    .style("fill", cs(d));
+
+                g.append("text")
+                    .attr("x", width - 90)
+                    .attr("y", (i + 1) * 25 + 8)
+                    .attr("height", 30)
+                    .attr("width", 100)
+                    .style("fill", "black")
+                    .text(d);
+
+            });
 
     }
 </script>
