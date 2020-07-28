@@ -83,8 +83,7 @@
             showYearSelection = false;
             d3.select("#scene-desc")
                 .html("<p>Looking at the chart, we can see a clear relationship between birth rate and income." +
-                    "People tends to give less birth if they are rich, and on the contrary the people in less wealthy" +
-                    "countries tend to give more birth.</p>")
+                    "People tends to give less birth if they are rich, and on the contrary the people in less wealthier tend to give more birth.</p>")
             d3.select("#div_template").html("")
             d3.selectAll(".btn").attr("class", "btn btn-default")
             d3.select("#button1").attr("class", "btn btn-primary")
@@ -136,7 +135,7 @@
             .style("border-radius", "5px")
             .style("padding", "5px");
 
-        if (golbalSceneNumber === 1) {
+        if (showAnnotation1) {
             var Annotation1_1 = d3.select("#div_template")
                 .append("div")
                 .attr("class", "annotation")
@@ -153,7 +152,7 @@
         }
 
 
-        if (golbalSceneNumber === 2) {
+        if (showAnnotation2) {
             var Annotation2 = d3.select("#div_template")
                 .append("div")
                 .attr("class", "annotation")
