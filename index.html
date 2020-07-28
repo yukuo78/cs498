@@ -17,9 +17,8 @@
     width: 120px;
     height: 70px;
     text-align: center;
-    background-color: orange;
-    border: solid;
-    border-width: 3px;
+    background-color: white;
+    border: 3px solid orange;
     border-radius: 10px;
     padding: 2px
 }
@@ -35,25 +34,29 @@
 <!--        </svg>-->
     </div>
     <div class="col-sm-3">
+        <h3>Navigation throgh here:</h3>
         <div class="btn-toolbar" role="toolbar" aria-label="...">
             <div class="btn-group" role="group" aria-label="...">
                 <p>
-                <div class="btn btn-default" onclick="changeScene(1)">Birth Rate vs Income in 2012</div>
-                <div class="btn btn-default" onclick="changeScene(2)">2</div>
-                <div class="btn btn-default" onclick="changeScene(3)">3</div>
+                <div id="button1" class="btn btn-primary" onclick="changeScene(1)">1</div>
+                <div id="button2" class="btn btn-default" onclick="changeScene(2)">2</div>
+                <div id="button3" class="btn btn-default" onclick="changeScene(3)">3</div>
                 </p>
             </div>
         </div>
-        <div id="scene-desc">
+        <div id="scene-desc" class="">
+            <p>Looking at the chart, we can see a clear relationship between birth rate and income.
+            People tends to give less birth if they are rich, and on the contrary the people in less wealthy
+            countries tend to give more birth.</p>
+        </div>
 
-        </div>
-        <h2>Year</h2>
-        <div class="row align-items-center">
-            <div class="col-sm-2"><p id="value-time"></p></div>
-            <div class="col-sm">
-                <div id="slider-time"></div>
-            </div>
-        </div>
+<!--        <h2>Year</h2>-->
+<!--        <div class="row align-items-center">-->
+<!--            <div class="col-sm-2"><p id="value-time"></p></div>-->
+<!--            <div class="col-sm">-->
+<!--                <div id="slider-time"></div>-->
+<!--            </div>-->
+<!--        </div>-->
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
@@ -79,8 +82,12 @@
             showAnnotation2 = false
             showYearSelection = false;
             d3.select("#scene-desc")
-                .html("We can see a relationship between birth rate and income")
+                .html("<p>Looking at the chart, we can see a clear relationship between birth rate and income." +
+                    "People tends to give less birth if they are rich, and on the contrary the people in less wealthy" +
+                    "countries tend to give more birth.</p>")
             d3.select("#div_template").html("")
+            d3.selectAll(".btn").attr("class", "btn btn-default")
+            d3.select("#button1").attr("class", "btn btn-primary")
             init()
         }
         if (golbalSceneNumber === 2) {
@@ -90,8 +97,12 @@
             showYearSelection = false;
             regionSelect = "Europe"
             d3.select("#scene-desc")
-                .html("But Europe is different")
+                .html("<p>But there are still regional difference. For example Europe is different. " +
+                    "It seems all European countries tend to have very low birth rate, though their income" +
+                    "vary much.</p>")
             d3.select("#div_template").html("")
+            d3.selectAll(".btn").attr("class", "btn btn-default")
+            d3.select("#button2").attr("class", "btn btn-primary")
             init()
         }
         if (golbalSceneNumber === 3) {
@@ -101,8 +112,11 @@
             showYearSelection = true;
             regionSelect = ""
             d3.select("#scene-desc")
-                .html("Now feel free to explore!")
+                .html("<h2>Please use your mouse to explore now!</h2><br><p>You will get more information when your mouse is over" +
+                    "any county></p>")
             d3.select("#div_template").html("")
+            d3.selectAll(".btn").attr("class", "btn btn-default")
+            d3.select("#button3").attr("class", "btn btn-primary")
             init()
         }
     }
@@ -127,14 +141,14 @@
             var Annotation1_1 = d3.select("#div_template")
                 .append("div")
                 .attr("class", "annotation")
-                .html("The poorest countries have highest birth rate")
+                .html("The <em>poorest</em> countries have <em>highest</em> birth rate")
                 .style("left", "100px")
                 .style("top", "10px")
 
             var Annotation1_2 = d3.select("#div_template")
                 .append("div")
                 .attr("class", "annotation")
-                .html("The richest countries have lowest birth rate")
+                .html("The <em>richest</em> countries have <em>lowest</em> birth rate")
                 .style("left", "750px")
                 .style("top", "300px")
         }
@@ -150,10 +164,8 @@
         }
 
         var mouseover = function (d) {
-            if (showToolTip) {
-                Tooltip
-                    .style("opacity", 1)
-            }
+            Tooltip
+                .style("opacity", 1)
             d3.select(this)
                 .style("stroke", "green")
                 .style("opacity", 1)
@@ -199,7 +211,7 @@
         var wrapper = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 
 
-        wrapper.selectAll("circle").data(data).enter().append("circle")
+        var circles = wrapper.selectAll("circle").data(data).enter().append("circle")
             .attr("cx", function (d) {
                 return xs(d.Income);
             })
@@ -215,9 +227,11 @@
             .style("opacity", function (d) {
                 return highlight(d.Region);
             })
-            .on("mouseover", mouseover)
-            .on("mousemove", mousemove)
-            .on("mouseleave", mouseleave)
+            if (showToolTip) {
+                circles .on("mouseover", mouseover)
+                .on("mousemove", mousemove)
+                .on("mouseleave", mouseleave)
+            }
 
 
         wrapper.append("g").attr("transform", "translate(0,0)")
