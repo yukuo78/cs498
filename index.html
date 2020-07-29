@@ -30,11 +30,9 @@
 
 <div class="row scatter">
     <div id="div_template" class="col-sm-9">
-<!--        <svg width=900 height=600>-->
-<!--        </svg>-->
     </div>
     <div class="col-sm-3">
-        <h3>Navigation throgh here:</h3>
+        <h3>Navigation through here:</h3>
         <div class="btn-toolbar" role="toolbar" aria-label="...">
             <div class="btn-group" role="group" aria-label="...">
                 <p>
@@ -46,17 +44,21 @@
         </div>
         <div id="scene-desc" class="">
             <p>Looking at the chart, we can see a clear relationship between birth rate and income.
-            People tends to give less birth if they are rich, and on the contrary the people in less wealthy
-            countries tend to give more birth.</p>
+                People tends to give less birth if they are rich, and on the contrary the people in less wealthy
+                countries tend to give more birth.</p>
         </div>
 
-<!--        <h2>Year</h2>-->
-<!--        <div class="row align-items-center">-->
-<!--            <div class="col-sm-2"><p id="value-time"></p></div>-->
-<!--            <div class="col-sm">-->
-<!--                <div id="slider-time"></div>-->
-<!--            </div>-->
-<!--        </div>-->
+        <!--        <h2>Year</h2>-->
+        <!--        <div class="row align-items-center">-->
+        <!--            <div class="col-sm-2"><p id="value-time"></p></div>-->
+        <!--            <div class="col-sm">-->
+        <!--                <div id="slider-time"></div>-->
+        <!--            </div>-->
+        <!--        </div>-->
+        <div id="legend-group" class="col-sm-3">
+            <div class="legendTitle" style="font-size: 12px;">REGION</div>
+            <div id="legend"></div>
+        </div>
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
@@ -69,10 +71,21 @@
 
     var golbalSceneNumber = 1;
     var showToolTip = false;
-    var showAnnotation1 = false;
+    var showAnnotation1 = true;
     var showAnnotation2 = false;
     var showYearSelection = false;
     var regionSelect = "";
+    var showLegendSelection = false;
+    var highlightOpacity = 0.7;
+    var normalOpacity = 0.2;
+
+    function extracted(sceneNumber) {
+        d3.select("#div_template").html("")
+        d3.select("#legend").html("")
+        d3.selectAll(".btn").attr("class", "btn btn-default")
+        d3.select("#button" + sceneNumber).attr("class", "btn btn-primary")
+        init()
+    }
 
     function changeScene(sceneNumber) {
         golbalSceneNumber = sceneNumber;
@@ -81,13 +94,12 @@
             showAnnotation1 = true
             showAnnotation2 = false
             showYearSelection = false;
+            regionSelect = ""
+            showLegendSelection = false;
             d3.select("#scene-desc")
                 .html("<p>Looking at the chart, we can see a clear relationship between birth rate and income." +
                     "People tends to give less birth if they are rich, and on the contrary the people in less wealthier tend to give more birth.</p>")
-            d3.select("#div_template").html("")
-            d3.selectAll(".btn").attr("class", "btn btn-default")
-            d3.select("#button1").attr("class", "btn btn-primary")
-            init()
+            extracted(1);
         }
         if (golbalSceneNumber === 2) {
             showToolTip = false;
@@ -95,13 +107,12 @@
             showAnnotation2 = true;
             showYearSelection = false;
             regionSelect = "Europe"
+            showLegendSelection = false;
             d3.select("#scene-desc")
                 .html("<p>But there are still regional difference. For example Europe is different. " +
                     "It seems all European countries tend to have very low birth rate, though their incomes vary much.</p>")
             d3.select("#div_template").html("")
-            d3.selectAll(".btn").attr("class", "btn btn-default")
-            d3.select("#button2").attr("class", "btn btn-primary")
-            init()
+            extracted(2)
         }
         if (golbalSceneNumber === 3) {
             showToolTip = true;
@@ -109,13 +120,11 @@
             showAnnotation2 = false;
             showYearSelection = true;
             regionSelect = ""
+            showLegendSelection = true;
             d3.select("#scene-desc")
                 .html("<h2>Please use your mouse to explore now!</h2><br><p>You will get more information when your mouse is over" +
                     " any county.</p>")
-            d3.select("#div_template").html("")
-            d3.selectAll(".btn").attr("class", "btn btn-default")
-            d3.select("#button3").attr("class", "btn btn-primary")
-            init()
+            extracted(3)
         }
     }
 
@@ -126,14 +135,14 @@
             .style("opacity", 0)
             .style("position", "absolute")
             .attr("class", "tooltip")
-            .style("width", "120px")
-            .style("height", "60px")
-            .style("text-align", "center")
+            .style("width", "150px")
+            .style("height", "85px")
+            .style("text-align", "left")
             .style("background-color", "white")
             .style("border", "solid")
             .style("border-width", "2px")
-            .style("border-radius", "5px")
-            .style("padding", "5px");
+            .style("border-radius", "2px")
+            .style("padding", "1px");
 
         if (showAnnotation1) {
             var Annotation1_1 = d3.select("#div_template")
@@ -170,24 +179,26 @@
         };
         var mousemove = function (d) {
             Tooltip
-                .html("The population of <em>" + d.Country + "</em><br/> is: " + d.Population)
+                .html("<em>" + d.Country + "</em><br/> Population: " + d.Population +"<br>" +
+                    "Birth rate: " + d.BirthRate + "<br/>" +
+                    "GDP/capita: " + d.Income)
                 .style("left", (d3.event.pageX) + "px")
-                .style("top", (d3.event.pageY - 200) + "px")
+                .style("top", (d3.event.pageY - 220) + "px")
         };
         var mouseleave = function (d) {
             Tooltip
                 .style("opacity", 0)
             d3.select(this)
                 .style("stroke", "black")
-                .style("opacity", 0.2)
+                .style("opacity", normalOpacity)
         };
 
         var highlight = function (d) {
             if ("" === regionSelect) {
-                return 0.2;
+                return normalOpacity;
             }
             if (d === regionSelect) {
-                return 1;
+                return highlightOpacity;
             } else {
                 return 0.05;
             }
@@ -198,7 +209,7 @@
         var xs = d3.scaleLog().domain([100, 100000]).range([0, width]);
         var rs = d3.scaleLog().domain([30000, 1600000000]).range([0, 15]);
         var cs = d3.scaleOrdinal().domain(regions)
-            .range(["gold", "blue", "green", "red", "brown", "slateblue", "orange"])
+            .range(["gold", "blue", "green", "red", "brown", "slateblue"])
 
         data = await d3.csv("https://yukuo78.github.io/cs498/gdp_birth_pop_2012.csv");
 
@@ -210,6 +221,7 @@
 
 
         var circles = wrapper.selectAll("circle").data(data).enter().append("circle")
+            .attr("class", "countries")
             .attr("cx", function (d) {
                 return xs(d.Income);
             })
@@ -225,21 +237,18 @@
             .style("opacity", function (d) {
                 return highlight(d.Region);
             })
-            if (showToolTip) {
-                circles .on("mouseover", mouseover)
+
+        if (showToolTip) {
+            circles.on("mouseover", mouseover)
                 .on("mousemove", mousemove)
                 .on("mouseleave", mouseleave)
-            }
-
+        }
 
         wrapper.append("g").attr("transform", "translate(0,0)")
             .call(d3.axisLeft(ys).ticks(5))
-        // .tickValues([0.01, 0.02, 0.05, 0.08]))
-        // .tickFormat(d3.format("~s")))
 
         wrapper.append("g").attr("transform", "translate(0," + height + ")")
             .call(d3.axisBottom(xs).tickValues([10, 100, 1000, 10000, 100000]).tickFormat(d3.format("~s")))
-
 
         //Set up X axis label
         wrapper.append("g")
@@ -250,7 +259,7 @@
             .attr("transform", "translate(" + width + "," + (height - 10) + ")")
             .text("GDP per capita [US $] - Logarithmic scale");
 
-        //Set up y axis label
+        // Set up y axis label
         wrapper.append("g")
             .append("text")
             .attr("class", "y title")
@@ -259,35 +268,76 @@
             .attr("transform", "translate(18, 0) rotate(-90)")
             .text("Birth rate");
 
-        // add legend
-        var legend = d3.select("svg").append("g")
-            .attr("class", "legend")
-            .attr("x", width)
-            .attr("y", 25)
-            .attr("height", 100)
-            .attr("width", 100);
+        //Legend
+        var legendMargin = {left: 5, top: 10, right: 5, bottom: 10},
+            legendWidth = 160,
+            legendHeight = 270;
 
-        legend.selectAll('g').data(regions)
-            .enter()
-            .append('g')
-            .each(function (d, i) {
-                var g = d3.select(this);
-                g.append("rect")
-                    .attr("x", width - 50)
-                    .attr("y", (i + 1) * 25)
-                    .attr("width", 10)
-                    .attr("height", 10)
-                    .style("fill", cs(d));
+        var svgLegend = d3.select("#legend").append("svg")
+            .attr("width", (legendWidth + legendMargin.left + legendMargin.right))
+            .attr("height", (legendHeight + legendMargin.top + legendMargin.bottom));
 
-                g.append("text")
-                    .attr("x", width - 25)
-                    .attr("y", (i + 1) * 25 + 8)
-                    .attr("height", 30)
-                    .attr("width", 100)
-                    .style("fill", "black")
-                    .text(d);
+        var legendWrapper = svgLegend.append("g").attr("class", "legendWrapper")
+            .attr("transform", "translate(" + legendMargin.left + "," + legendMargin.top + ")");
 
+        var rectSize = 16, //dimensions of the colored square
+            rowHeight = 22, //height of a row in the legend
+            maxWidth = 125; //widht of each row
+
+        //Create container per rect/text pair
+        var legend = legendWrapper.selectAll('.legendSquare')
+            .data(cs.range())
+            .enter().append('g')
+            .attr('class', 'legendSquare')
+            .attr("transform", function (d, i) {
+                return "translate(" + 0 + "," + (i * rowHeight) + ")";
+            })
+
+        //Append small squares to Legend
+        legend.append('rect')
+            .attr('width', rectSize)
+            .attr('height', rectSize)
+            .style('fill', function (d) {
+                return d;
             });
+        //Append text to Legend
+        legend.append('text')
+            .attr('transform', 'translate(' + 25 + ',' + (rectSize / 2) + ')')
+            .attr("class", "legendText")
+            .style("font-size", "11px")
+            .attr("dy", ".35em")
+            .text(function (d, i) {
+                return cs.domain()[i];
+            });
+
+        // show legend
+        if (showLegendSelection) {
+            legend.style("cursor", "pointer")
+                .on("mouseover", selectLegend(0.02))
+                .on("mouseout", selectLegend(normalOpacity))
+            // .on("click", selectLegend(0.02));
+        }
+
+        //Decrease opacity of non selected circles when hovering in the legend
+        function selectLegend(opacity) {
+            return function (d, i) {
+                var chosen = cs.domain()[i];
+
+                wrapper.selectAll(".countries")
+                    .filter(function (d) {
+                        return d.Region !== chosen;
+                    })
+                    .transition()
+                    .style("opacity", opacity);
+
+                wrapper.selectAll(".countries")
+                    .filter(function (d) {
+                        return d.Region === chosen;
+                    })
+                    .transition()
+                    .style("opacity", highlightOpacity);
+            };
+        }
 
     }
 </script>
