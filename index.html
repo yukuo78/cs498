@@ -79,7 +79,7 @@
     var highlightOpacity = 0.7;
     var normalOpacity = 0.2;
 
-    function extracted(sceneNumber) {
+    function resetScene(sceneNumber) {
         d3.select("#div_template").html("")
         d3.select("#legend").html("")
         d3.selectAll(".btn").attr("class", "btn btn-default")
@@ -99,7 +99,7 @@
             d3.select("#scene-desc")
                 .html("<p>Looking at the chart, we can see a clear relationship between birth rate and income." +
                     "People tends to give less birth if they are rich, and on the contrary the people in less wealthier tend to give more birth.</p>")
-            extracted(1);
+            resetScene(1);
         }
         if (golbalSceneNumber === 2) {
             showToolTip = false;
@@ -112,7 +112,7 @@
                 .html("<p>But there are still regional difference. For example Europe is different. " +
                     "It seems all European countries tend to have very low birth rate, though their incomes vary much.</p>")
             d3.select("#div_template").html("")
-            extracted(2)
+            resetScene(2)
         }
         if (golbalSceneNumber === 3) {
             showToolTip = true;
@@ -122,9 +122,9 @@
             regionSelect = ""
             showLegendSelection = true;
             d3.select("#scene-desc")
-                .html("<h2>Please use your mouse to explore now!</h2><br><p>You will get more information when your mouse is over" +
-                    " any county.</p>")
-            extracted(3)
+                .html("<h2>Now use your mouse to explore!</h2><br><p>" +
+                    "Try move your mouse over the legend and the circles.</p>")
+            resetScene(3)
         }
     }
 
@@ -137,7 +137,7 @@
             .attr("class", "tooltip")
             .style("width", "150px")
             .style("height", "85px")
-            .style("text-align", "left")
+            .style("text-align", "center")
             .style("background-color", "white")
             .style("border", "solid")
             .style("border-width", "2px")
